@@ -1,156 +1,176 @@
- #include "stdafx.h"
+#include "stdafx.h"
 #include <windows.h>
 #include <stdio.h>
 #include <iostream>
 using namespace std;
 
-struct node
+template <typename T>
+class List
 {
-	int data;
-	node *next;	
-};
-
-class list
-{
-private:
-	node *head, *tail;
 public:
-	list()
+	List()
 	{
-		head=NULL;
-		tail=NULL;
+		Size=0;
+		head=nullptr;
 	}
-	void createnode(int value)
+	~List()
 	{
-		node *temp=new node;
-		temp->data=value;
-		temp->next=NULL;
-		if(head==NULL)
+		clear();
+	}
+
+	void push_back(T data)             // добавить в конец
+	{
+		if(head==nullptr)
 		{
-			head=temp;
-			tail=temp;
-			temp=NULL;
+			head = new Node<T>(data);
 		}
 		else
-		{	
-			tail->next=temp;
-			tail=temp;
-		}
-	}
-
-	void display()
-	{
-		node *temp=new node;
-		temp=head;
-		while(temp!=NULL)
 		{
-			cout<<temp->data<<"\t";
-			temp=temp->next;
+			Node<T>* current =this->head;
+
+			while(current->pNext!=nullptr)
+			{
+				current=current->pNext;
+			}
+			current->pNext = new Node<T>(data); 
 		}
+		Size++;
 	}
 
-	void insert_start(int value)
+	void push_front(T data)
 	{
-		node *temp=new node;
-		temp->data=value;
-		temp->next=head;
-		head=temp;
+		head = new Node<T>(data, head);
+		Size++;
 	}
 
-	void insert_position(int pos, int value)
+	void insert(T value, int index)
 	{
-		node *pre=new node;
-		node *cur=new node;
-		node *temp=new node;
-		cur=head;
-		for(int i=1;i<pos;i++)
+		if(index==0)
 		{
-			pre=cur;
-			cur=cur->next;
+			push_front(value);
 		}
-		temp->data=value;
-		pre->next=temp;	
-		temp->next=cur;
+		else
+		{
+			Node<T>* previous=this->head;
+
+			for(int i=0; i<index-1; i++)
+			{
+				previous=previous->pNext;
+			}
+
+
+			previous->pNext= new Node<T>(value, previous->pNext);
+			Size++;
+		}
 	}
 
-	void delete_first()
+	void removeAt(int index)
 	{
-		node *temp=new node;
-		temp=head;
-		head=head->next;
+		if(index==0)
+		{
+			pop_front();
+		}
+		else
+		{
+			Node<T>* previous = this->head;
+
+			for(int i=0; i<index-1; i++
+			{
+				previous = previous->pNext;
+			}
+
+			Node<T>* toDelete = previous->pNext;
+			previous->toNext=toDelete->pNext;
+
+			delete toDelete;
+			Size--;
+		}
+	}
+
+	void pop_back()
+	{
+		removeAt(Size-1);
+	}
+
+	void clear()
+	{
+		while(Size)
+		{
+			pop_front();
+		}
+	}
+
+	void pop_front()
+	{
+		Node<T> *temp = head;
+		head = head->pNext;
 		delete temp;
+		Size--;
 	}
 
-	void delete_last()
+	int GetSize()
 	{
-		node *current=new node;
-		node *previous=new node;
-		current=head;
-		while(current->next!=NULL)
-		{
-			previous=current;
-			current=current->next;	
-		}
-		tail=previous;
-		previous->next=NULL;
-		delete current;
+		return Size;
 	}
 
-	void delete_position(int pos)
+	T& operator[](const int index)
 	{
-		node *current=new node;
-		node *previous=new node;
-		current=head;
-		for(int i=1;i<pos;i++)
+		int counter = 0;
+		Node<T> *current = this->head;
+
+		while(current!=nullptr)
 		{
-			previous=current;
-			current=current->next;
+			if(counter==index)
+			{
+				return current->data;
+			}
+			current=current->pNext;
+			counter++;
 		}
-		previous->next=current->next;
 	}
+
+private:
+	template <typename T>
+	class Node
+	{
+	public:
+		Node* pNext;
+		T data;
+
+		Node(T data = T(), Node* pNext = nullptr)
+		{
+			this->data=data;
+			this->pNext=pNext;
+		}
+	};
+
+	int Size;
+	Node<T> *head;
 };
+
 int main()
 {
-	list obj;
-	obj.createnode(25);
-	obj.createnode(50);
-	obj.createnode(90);
-	obj.createnode(40);
-	cout<<"\n--------------------------------------------------\n";
-	cout<<"---------------Displaying All nodes---------------";
-	cout<<"\n--------------------------------------------------\n";
-	obj.display();
-	cout<<"\n--------------------------------------------------\n";
-	cout<<"-----------------Inserting At End-----------------";
-	cout<<"\n--------------------------------------------------\n";
-	obj.createnode(55);
-	obj.display();
-	cout<<"\n--------------------------------------------------\n";
-	cout<<"----------------Inserting At Start----------------";
-	cout<<"\n--------------------------------------------------\n";
-	obj.insert_start(50);
-	obj.display();
-	cout<<"\n--------------------------------------------------\n";
-	cout<<"-------------Inserting At Particular--------------";
-	cout<<"\n--------------------------------------------------\n";
-	obj.insert_position(5,60);
-	obj.display();
-	cout<<"\n--------------------------------------------------\n";
-	cout<<"----------------Deleting At Start-----------------";
-	cout<<"\n--------------------------------------------------\n";
-	obj.delete_first();
-	obj.display();
-	cout<<"\n--------------------------------------------------\n";
-	cout<<"-----------------Deleing At End-------------------";
-	cout<<"\n--------------------------------------------------\n";
-	obj.delete_last();
-	obj.display();
-	cout<<"\n--------------------------------------------------\n";
-	cout<<"--------------Deleting At Particular--------------";
-	cout<<"\n--------------------------------------------------\n";
-	obj.delete_position(4);
-	obj.display();
-	cout<<"\n--------------------------------------------------\n";
+	List<int> lst;
+
+	int numbersCount;
+	cin>>numbersCount;
+
+	for(int i=0; i<numbersCount; i++)
+	{
+		lst.push_back(rand()%10);
+	}
+
+
+
+
+
+	lst.GetSize();
+
+	for(int i=0; i<lst.GetSize(); i++)
+	{
+		cout<<lst[i]<<endl<<endl;
+	}
+
 	system("pause");
 	return 0;
 }
